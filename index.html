@@ -1,326 +1,427 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfolio of Andre Ndong Nto - Aspiring Software Engineer and Data Scientist">
-    <title>Michel Ndong Nto | Portfolio</title>
-    <style>
-        /* Global Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Saint Michel — Interactive Futuristic Portfolio</title>
+<meta name="description" content="Interactive futuristic motion frontend for Saint Michel Linus. 3D cards, particles, glass UI." />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Root + Utility ---------- */
+  :root{
+    --bg-1:#050816;
+    --bg-2:#071a2b;
+    --glass: rgba(255,255,255,0.04);
+    --glass-2: rgba(255,255,255,0.02);
+    --neon:#00e6c3;
+    --accent:#6ee7b7;
+    --muted:rgba(255,255,255,0.6);
+    --card-radius:18px;
+    color-scheme: dark;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
 
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f0f0f0;
-            color: #333;
-        }
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    * { transition: none !important; animation: none !important; }
+  }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+  html,body{height:100%; margin:0; background:linear-gradient(160deg,var(--bg-1),var(--bg-2)); overflow:hidden;}
+  .wrap{position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 420px; gap:28px; align-items:center; padding:48px; box-sizing:border-box; max-width:1500px; margin:auto;}
+  @media (max-width:980px){ .wrap{grid-template-columns:1fr; padding:28px;} }
 
-        h1, h2, h3 {
-            margin-bottom: 10px;
-        }
+  /* ---------- Canvas background ---------- */
+  canvas#field{ position:fixed; inset:0; z-index:0; display:block; }
 
-        p {
-            margin-bottom: 15px;
-            line-height: 1.7;
-        }
+  /* ---------- Left Column (Intro) ---------- */
+  .intro{z-index:2; color: white; max-width:900px;}
+  .eyebrow{ display:inline-block; padding:6px 12px; border-radius:999px; background:rgba(0,0,0,0.25); color:var(--accent); font-weight:700; letter-spacing:0.6px; margin-bottom:18px; }
+  h1{ font-size:clamp(34px,6vw,54px); margin:0 0 10px; line-height:1.02; background: linear-gradient(90deg,var(--neon),#9bead3); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow: 0 8px 40px rgba(0,230,195,0.06); }
+  p.lead{ color:var(--muted); font-size:1.05rem; margin:8px 0 24px; max-width:60ch; }
+  .cta-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; cursor:pointer; font-weight:700; border:1px solid rgba(255,255,255,0.06); text-decoration:none; color:inherit; }
+  .btn-primary{ background:linear-gradient(90deg, rgba(0,230,195,0.12), rgba(109,213,160,0.08)); box-shadow: 0 8px 30px rgba(0,230,195,0.06); color:var(--neon); }
+  .btn-ghost{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.04); }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
+  .meta{ display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; color:var(--muted); }
+  .meta .pill{ background:var(--glass); padding:8px 12px; border-radius:999px; font-weight:600; font-size:0.9rem; }
 
-        /* Header */
-        header {
-            background-color: #1f1f1f;
-            color: #fff;
-            padding: 30px 0;
-            text-align: center;
-        }
+  /* ---------- Right Column (Project cards) ---------- */
+  .panel{ z-index:2; }
+  .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:980px){ .card-grid{ grid-template-columns:1fr; margin-top:18px; } }
 
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--card-radius);
+    padding:14px;
+    min-height:170px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transform-style:preserve-3d;
+    transition: transform 350ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    border:1px solid rgba(255,255,255,0.03);
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .card .tag{ position:absolute; top:12px; left:12px; font-weight:700; font-size:0.8rem; color:var(--neon); transform:translateZ(30px); }
+  .card h3{ margin:0; font-size:1.05rem; transform:translateZ(26px); }
+  .card p{ color:var(--muted); font-size:0.92rem; margin-top:8px; transform:translateZ(24px); }
+  .card .foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; transform:translateZ(22px); }
+  .card img.thumb{ width:64px; height:64px; border-radius:10px; object-fit:cover; }
 
-        header p {
-            font-size: 1.2em;
-            font-weight: 300;
-        }
+  /* Neon accent line */
+  .neon-line{ position:absolute; left:-20%; top:70%; width:140%; height:220px; background:linear-gradient(90deg, transparent, rgba(0,230,195,0.06), transparent); transform:skewY(-10deg); filter: blur(20px); z-index:0; pointer-events:none; }
 
-        nav {
-            margin: 20px 0;
-        }
+  /* ---------- Modal ---------- */
+  .modal{
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.62), rgba(0,0,0,0.76)); z-index:9999; padding:28px;
+  }
+  .modal.open{ display:flex; }
+  .modal-card{ width:min(1100px,96%); background:linear-gradient(180deg,#071026, #041822); border-radius:14px; padding:20px; box-shadow:0 20px 60px rgba(2,6,23,0.8); border:1px solid rgba(255,255,255,0.04); color:var(--muted); }
+  .modal-card h2{ color: #fff; margin:0 0 10px; }
+  .modal-row{ display:grid; grid-template-columns:1fr 360px; gap:18px; }
+  @media (max-width:980px){ .modal-row{ grid-template-columns:1fr; } }
+  .modal-card .artifact{ background:var(--glass); border-radius:10px; padding:8px; display:flex; gap:8px; align-items:center; }
+  .close-x{ background:transparent; border:none; color:var(--muted); font-size:18px; cursor:pointer; }
 
-        nav a {
-            margin: 0 15px;
-            font-size: 1.1em;
-            padding-bottom: 5px;
-            border-bottom: 2px solid transparent;
-        }
-
-        nav a:hover {
-            border-bottom: 2px solid #00aaff;
-        }
-
-        /* Section Styles */
-        section {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        h2 {
-            color: #00aaff;
-            font-size: 2em;
-            border-bottom: 3px solid #00aaff;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .skills ul {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .skills li {
-            background-color: #00aaff;
-            color: #fff;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 5px;
-            font-size: 1.1em;
-        }
-
-        .projects, .experience, .education {
-            margin-bottom: 40px;
-        }
-
-        .project, .job, .education-item {
-            margin-bottom: 30px;
-        }
-
-        .project h3, .job h3 {
-            font-size: 1.4em;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .project p, .job p {
-            color: #666;
-        }
-
-        .project h3::before, .job h3::before {
-            content: "▶ ";
-            color: #00aaff;
-        }
-
-        .project-details {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        /* Contact Section */
-        .contact-info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            text-align: center;
-        }
-
-        .contact-info div {
-            width: 30%;
-            background-color: #f7f7f7;
-            padding: 20px;
-            margin: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        footer {
-            background-color: #1f1f1f;
-            color: #fff;
-            text-align: center;
-            padding: 15px 0;
-            margin-top: 50px;
-        }
-
-        footer a {
-            color: #00aaff;
-        }
-
-        /* Media Queries */
-        @media (max-width: 768px) {
-            .contact-info div {
-                width: 100%;
-                margin: 10px 0;
-            }
-
-            nav a {
-                font-size: 1em;
-                margin: 0 10px;
-            }
-
-            header h1 {
-                font-size: 2.5em;
-            }
-        }
-    </style>
+  /* ---------- small helpers ---------- */
+  .muted{ color:var(--muted); }
+  .kbd{ background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:6px; font-weight:700; color:var(--muted); }
+  footer{ position:fixed; right:18px; bottom:18px; z-index:8; color:var(--muted); font-size:0.9rem; }
+</style>
 </head>
 <body>
+  <!-- Animated particle field -->
+  <canvas id="field"></canvas>
 
-    <header>
-        <h1>ANDRE NDONG NTO</h1>
-        <p>Aspiring Software Engineer & Data Scientist | 2nd Year Computer Science BSc (Hons)</p>
-        <nav>
-            <a href="#about">About</a>
-            <a href="#skills">Skills</a>
-            <a href="#projects">Projects</a>
-            <a href="#experience">Experience</a>
-            <a href="#education">Education</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
+  <div class="wrap" aria-live="polite">
+    <div class="intro">
+      <div class="eyebrow">Mechanical & Industrial Engineering</div>
+      <h1>Saint Michel Linus<br><span style="font-weight:600; font-size:0.6em; color:var(--muted)">Simulation | Test Automation | RF & Embedded</span></h1>
+      <p class="lead">I design and validate high-performance electromechanical systems using FEA, CFD, and automated test flows. I bring simulation-first thinking to prototyping and production.</p>
 
-    <section id="about">
-        <h2>About Me</h2>
-        <p>
-            I am a passionate second-year Computer Science student focused on software engineering, data science, and artificial intelligence. My drive is to leverage technology to solve real-world problems, with a particular interest in machine learning and full-stack web development. I am eager to work on meaningful projects and internships that align with my skills and interests.
-        </p>
-    </section>
+      <div class="cta-row">
+        <a class="btn btn-primary" id="openPortfolio">Explore Projects</a>
+        <a class="btn btn-ghost" href="assets/Resume.pdf" download>Download Résumé</a>
+        <a class="btn btn-ghost" id="contrastHint">⌁</a>
+      </div>
 
-    <section id="skills" class="skills">
-        <h2>Programming Languages</h2>
-        <ul>
-            <li>Python</li>
-            <li>Java</li>
-            <li>C++</li>
-            <li>JavaScript</li>
-            <li>SQL</li>
-            <li>C</li>
-            <li>HTML & CSS</li>
-            <li>PHP</li>
-        </ul><br>
-        <h2>Development Tools</h2>
-        <ul>
-            <li>Git & GitHub</li>
-            <li>Intelli J</li>
-            <li>Blue J</li>
-            <li>Visual Studio Code</li>
-            <li>Dev C++</li>
-            <li>Eclipse</li>
-            <li>Block Note</li>
-        </ul><br>
-        <h2>Frameworks/ Technologies</h2>
-        <ul>
-            <li>Agile methodologies</li>
-            <li>database design</li>
-            <li>Test-Driven Development</li>
-        </ul>
-    </section>
-    <section id="projects" class="projects">
-        <h2>Projects</h2>
-        <div class="project">
-            <h3>Multiplayer Strategy Game in Java</h3>
-            <div class="project-details">
-                <p><strong>Technologies and Languages:</strong> Python, Java, Agile methodologies, database design</p><p>
-                • I Led a team of 4 in developing a turn-based multiplayer game using Java (The Tic_Tac_Toe Game).<br>
-                • I demonstrated proficiency in object-oriented design and collaborative software development.<br>
-                • I Applied Agile methodology, breaking down the project into smaller chunks which can be easily understood and implemented.<br>
-                • I Implemented complex game mechanics, including real-time user input handling.
-                </p>
-            </div>
-        </div>
+      <div class="meta" aria-hidden="false">
+        <div class="pill">Smiths Interconnect — Internship</div>
+        <div class="pill">FEA • CFD • Python Automation</div>
+        <div class="pill">University of Leeds</div>
+      </div>
+    </div>
 
-        <div class="project">
-            <h3>Personal Portfolio Website</h3>
-            <div class="project-details">
-                <p><strong>Technologies and Languages:</strong> HTML, CSS, JavaScript</p>
-                <p>
-                 • I Built and deployed a responsive portfolio website.<br> 
-                 • I used modern web development practices to showcase my projects and skills. <br> 
-                 • I hosted my portfolio website on GitHub Pages.
-                </p>
-            </div>
-        </div>
-        
-        <div class="project">
-            <h3>Football Club Website</h3>
-            <div class="project-details">
-                <p><strong>Technologies and Languages:</strong> HTML, CSS, JavaScript, PHP, SQL</p>
-                <p>
-                 • I Built and deployed a responsive website for a football club i am fan of (Real Madrid).<br> 
-                 • This was my final project for my web development course.<br>
-                 • The website consisted of a login  page linked to a database of users so as to filter entry.<br>
-                 • I used modern web development practices to develop this projects.<br>
-                 • I saved this website on  my GitHub.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section id="experience" class="experience">
-        <h2>Experience</h2>
-        <div class="job">
-            <h3>Junior Software Developer (Part-Time)</h3>
-            <div class="project-details">
-                <p><strong>Debolonia Corporation | Jul 2024 - Sept 2024</strong></p>
-                <p>
-                 • I Collaborated with a team to develop a web application for the Construction Company.<br> 
-                 • I Worked on full-stack development using Python (Flask), Java, SQL, HTML and CSS, optimizing API response times and improving performance.<br> 
-                 • I gained valuable experience working with this company
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section id="education" class="education">
-        <h2>Education</h2>
-
-        <div class="education-item">
-            <p><strong>Foundation Degree in Computer Science</strong></p>
-            <p>International College Dundee, Dundee, Scotland | Jan 2024 - Aug 2024</p>
-            <p><strong>Relevant Courses:</strong> Data Structures & Algorithms, Data Analysis, Web Development, Database Systems, Software Development</p>
-        </div>
-
-        <div class="education-item">
-            <p><strong>Bsc (Hons) Computer Science</strong></p>
-            <p>University of Dundee, Dundee, Scotland | Jan 2024 - Present</p>
-            <p><strong>Relevant Courses:</strong> Data Structures & Algorithms, Operating Systems, Machine Learning & AI, C++ Programming</p>
-        </div>
-    </section>
-
-    <section id="contact">
-        <h2>Contact Me</h2>
-        <div class="contact-info">
+    <aside class="panel">
+      <div class="card-grid" id="cardGrid" role="list">
+        <!-- Card 1 -->
+        <div class="card" tabindex="0" data-project="smiths" aria-label="Smiths Interconnect internship. Click for details">
+          <div class="tag">Industry</div>
+          <h3>Smiths Interconnect — Test Automation</h3>
+          <p class="muted">ATE, VNA automation, FEA & CFD for RF components, thick-film processes.</p>
+          <div class="foot">
+            <img class="thumb" src="images/projects/smiths-thumb.jpg" alt="Smiths internship thumbnail">
             <div>
-                <p>Email: <a href="https://ndongbenoitxvi1@gmail.com">ndongbenoitxvi1@gmail.com</a></p>
+              <small class="muted">May — Sep 2025</small>
             </div>
-            <div>
-                <p>GitHub: <a href="https://github.com/NDONG237" target="_blank">https://github.com/NDONG237</a></p>
-            </div>
-            <div>
-                <p>Linkedin: <a href="https://linkedin.com/in/andre-ndong-nto" target="_blank">https://linkedin.com/in/andre-ndong-nto</a></p>
-            </div>
+          </div>
+          <div class="neon-line" aria-hidden="true"></div>
         </div>
-    </section>
-    <p style="text-align: center;">Download My CV<br> <a style="color: #00aaff;" href="Saint Michel Linus cv.docx">here</a></p>
-    <footer>
-        <p>&copy; 2024 Andre Ndong Nto | All Rights Reserved.</p>
-    </footer>
 
+        <!-- Card 2 -->
+        <div class="card" tabindex="0" data-project="thermal" aria-label="Smart Thermal-Fluid Monitor project. Click for details">
+          <div class="tag">Research</div>
+          <h3>Smart Thermal-Fluid Monitor</h3>
+          <p class="muted">Python + ANSYS batch simulations for thermal-stress prediction and sensor modelling.</p>
+          <div class="foot">
+            <img class="thumb" src="images/projects/smart-thermal-thumb.jpg" alt="Smart thermal">
+            <div><small class="muted">Academic / Ongoing</small></div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card" tabindex="0" data-project="robotic" aria-label="Robotic arm project. Click for details">
+          <div class="tag">Design</div>
+          <h3>Multipurpose Robotic Arm</h3>
+          <p class="muted">CAD, 3D printing, Python control, task automation and experimental validation.</p>
+          <div class="foot">
+            <img class="thumb" src="images/projects/robotic-arm-thumb.jpg" alt="robotic arm">
+            <div><small class="muted">Team Project</small></div>
+          </div>
+        </div>
+
+        <!-- Card 4 (placeholder for another project) -->
+        <div class="card" tabindex="0" data-project="misc" aria-label="Other work">
+          <div class="tag">Misc</div>
+          <h3>Misc Projects & Tools</h3>
+          <p class="muted">VNA scripts, microcontroller firmware, process documentation & reproducible test rigs.</p>
+          <div class="foot">
+            <img class="thumb" src="images/projects/misc-thumb.jpg" alt="misc">
+            <div><small class="muted">Assorted</small></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+
+  <footer>Tip: Hover or move cursor on cards for 3D tilt • Press <span class="kbd">Esc</span> to close modals</footer>
+
+  <!-- Modal for project details -->
+  <div class="modal" id="modal" role="dialog" aria-hidden="true" aria-modal="true">
+    <div class="modal-card" role="document">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="modalTitle">Project</h2>
+        <button class="close-x" id="modalClose" aria-label="Close project details">✕</button>
+      </div>
+      <div class="modal-row" id="modalBody">
+        <div>
+          <p id="modalDesc" class="muted"></p>
+          <h4>Key Contributions</h4>
+          <ul id="modalBullets" class="muted"></ul>
+          <div style="margin-top:12px;">
+            <a id="modalDownload" class="btn btn-primary" href="#" download>Download Artifacts</a>
+            <a id="modalMore" class="btn btn-ghost" href="#">Open full case study</a>
+          </div>
+        </div>
+        <aside>
+          <div class="artifact"><img id="modalImg" src="" alt="artifact" style="width:100%; border-radius:8px;"></div>
+          <div style="margin-top:12px; color:var(--muted); font-size:0.9rem;">Press <span class="kbd">Esc</span> to close</div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   Particle field (Canvas)
+   Lightweight, performant
+   ========================= */
+(() => {
+  const canvas = document.getElementById('field');
+  const ctx = canvas.getContext('2d', { alpha:true });
+  let w = canvas.width = innerWidth;
+  let h = canvas.height = innerHeight;
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  const pts = [];
+  const NUM = Math.round((w*h)/90000); // density scales with screen
+  for(let i=0;i<NUM;i++){
+    pts.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      vx: (Math.random()-0.5)*0.15,
+      vy: (Math.random()-0.5)*0.15,
+      r: 0.6 + Math.random()*1.8,
+      alpha: 0.06 + Math.random()*0.16
+    });
+  }
+
+  let mouse = {x: w/2, y: h/2, active:false};
+
+  addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active=true; });
+  addEventListener('mouseleave', ()=> mouse.active=false);
+  addEventListener('resize', ()=> {
+    w = canvas.width = innerWidth; h = canvas.height = innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr; canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    ctx.scale(dpr,dpr);
+  });
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    // gradient overlay
+    const g = ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0, 'rgba(0,20,30,0.12)');
+    g.addColorStop(1, 'rgba(4,10,20,0.28)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    // draw connections
+    for(let i=0;i<pts.length;i++){
+      const p = pts[i];
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < -20) p.x = w+20;
+      if(p.x > w+20) p.x = -20;
+      if(p.y < -20) p.y = h+20;
+      if(p.y > h+20) p.y = -20;
+
+      // attraction to mouse
+      if(mouse.active){
+        const dx = mouse.x - p.x, dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 220){
+          p.vx += (dx/dist)*0.03;
+          p.vy += (dy/dist)*0.03;
+        }
+      }
+
+      // draw point
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(180,255,230,'+p.alpha+')';
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+
+      // small line to the nearest point (creates network effect)
+      for(let j=i+1;j<Math.min(pts.length, i+10); j++){
+        const q = pts[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if(d < 120){
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(125,255,210,' + (0.08*(1 - d/120)) + ')';
+          ctx.lineWidth = 0.8;
+          ctx.moveTo(p.x,p.y);
+          ctx.lineTo(q.x,q.y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* =========================
+   3D tilt / card interaction
+   ========================= */
+(() => {
+  const withPrefix = (el, k) => { el.style.setProperty(k, el.dataset[k] || ''); };
+  const cards = Array.from(document.querySelectorAll('.card'));
+  function onMove(e){
+    const x = e.clientX, y = e.clientY;
+    cards.forEach(card => {
+      const r = card.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const dx = (x - cx) / r.width;
+      const dy = (y - cy) / r.height;
+      const tiltX = (-dy * 10).toFixed(2);
+      const tiltY = (dx * 12).toFixed(2);
+      const scale = 1.02;
+      card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(${scale})`;
+      card.style.boxShadow = `${-tiltY*1.5}px ${tiltX*1.2}px 40px rgba(0,230,195,0.06)`;
+    })
+  }
+  function reset(){
+    cards.forEach(card => {
+      card.style.transform = 'none';
+      card.style.boxShadow = '';
+    })
+  }
+  let idle = null;
+  document.addEventListener('mousemove', e => {
+    onMove(e);
+    clearTimeout(idle);
+    idle = setTimeout(reset, 800);
+  });
+
+  // keyboard + click to open modal
+  const modal = document.getElementById('modal');
+  const mTitle = document.getElementById('modalTitle');
+  const mDesc = document.getElementById('modalDesc');
+  const mBul = document.getElementById('modalBullets');
+  const mImg = document.getElementById('modalImg');
+  const mDownload = document.getElementById('modalDownload');
+  const mMore = document.getElementById('modalMore');
+
+  const projects = {
+    smiths:{
+      title: 'Smiths Interconnect — Test Automation & RF Validation',
+      desc: 'Automated measurement flows (VNA), ATE software with Python/C++, FEA & CFD analysis of RF housings, and thick-film process validation.',
+      bullets: ['Built reusable Python ATE library', 'Automated 2-port & 4-port VNA sweeps', 'FEA thermal reports with design recommendations', 'XRF analysis & process protocols'],
+      img: 'images/projects/smiths-modal-1.jpg',
+      download: 'assets/smiths-artifacts.zip',
+      more: 'projects/project-smiths-internship.html'
+    },
+    thermal:{
+      title: 'Smart Thermal-Fluid Structure Monitor',
+      desc: 'Simulation-driven monitoring system combining ANSYS batch simulations and Python data pipelines to predict thermal-stress behaviour in pipe systems.',
+      bullets:['Batch-run ANSYS cases', 'Python sensor emulation and post-processing', 'Design notes for embedded sensor placement'],
+      img: 'images/projects/thermal-modal-1.jpg',
+      download: 'assets/thermal-notebooks.zip',
+      more: 'projects/project-smart-thermal.html'
+    },
+    robotic:{
+      title: 'Multipurpose Robotic Arm',
+      desc: '4-DOF robotic arm with Python control stack, CAD parts for 3D printing, and automated repeatability tests.',
+      bullets:['CAD in Onshape & Cura profiles','PID tuning and sensor fusion','Automated test routines for pick-and-place accuracy'],
+      img: 'images/projects/robotic-modal-1.jpg',
+      download: 'assets/robotic-scripts.zip',
+      more: 'projects/project-robotic-arm.html'
+    },
+    misc:{
+      title: 'Tooling, Scripts & Misc Prototypes',
+      desc: 'Small automation scripts, microcontroller firmware, and process documentation developed during internships and project work.',
+      bullets:['VNA scripts', 'Microcontroller firmware', 'Process documentation templates'],
+      img: 'images/projects/misc-modal-1.jpg',
+      download: 'assets/misc.zip',
+      more: '#projects'
+    }
+  };
+
+  function openProject(key){
+    const p = projects[key];
+    if(!p) return;
+    mTitle.textContent = p.title;
+    mDesc.textContent = p.desc;
+    mBul.innerHTML = '';
+    p.bullets.forEach(b => { const li = document.createElement('li'); li.textContent = b; mBul.appendChild(li); });
+    mImg.src = p.img;
+    mDownload.href = p.download;
+    mMore.href = p.more;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('cardGrid').addEventListener('click', e => {
+    const card = e.target.closest('.card');
+    if(!card) return;
+    const key = card.dataset.project;
+    openProject(key);
+  });
+
+  document.getElementById('cardGrid').addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      const card = e.target.closest('.card');
+      if(!card) return;
+      const key = card.dataset.project;
+      openProject(key);
+    }
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+  // Open portfolio CTA
+  document.getElementById('openPortfolio').addEventListener('click', () => {
+    // focus first card
+    const first = document.querySelector('.card');
+    if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+    first && first.focus();
+  });
+
+  // small contrast hint button
+  document.getElementById('contrastHint').addEventListener('click', ()=>{
+    alert('Theme toggle available on your full portfolio. Use the dark theme for best contrast.');
+  });
+
+})();
+</script>
 </body>
 </html>
